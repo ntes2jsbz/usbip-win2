@@ -1,6 +1,6 @@
 ; Copyright (c) 2022-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
 ;
-; usbip2_filter.inf
+; usbipne_filter.inf
 ; Upper-level device-specific filter driver.
 ; @see Using an Extension INF File
 
@@ -9,8 +9,8 @@ Signature = "$WINDOWS NT$"
 Class = Extension
 ClassGuid = {e2f84ce7-8efa-411c-aa69-97454ca4cb57}
 Provider = %Manufacturer%
-ExtensionId = {c1e0d1fe-d564-596e-4526-71da1249702a}
-CatalogFile = usbip2_filter.cat
+ExtensionId = {b20df001-b272-4445-a96e-10f0077b4123}
+CatalogFile = usbipne_filter.cat
 PnpLockDown = 1
 
 [DestinationDirs]
@@ -20,7 +20,7 @@ DefaultDestDir = 13 ; DriverStore
 1 = "USBip Upper Filter Installation Disk"
 
 [SourceDisksFiles]
-usbip2_filter.sys = 1
+usbipne_filter.sys = 1
 
 [Manufacturer]
 ; Windows 10, version 1903 and later
@@ -32,32 +32,32 @@ usbip2_filter.sys = 1
 %DisplayName% = Generic_Inst, USB\ROOT_HUB30
 
 [Generic_Inst.NT$ARCH$]
-CopyFiles = @usbip2_filter.sys
+CopyFiles = @usbipne_filter.sys
 
 [Generic_Inst.NT$ARCH$.Filters]  
 ; this directive is supported in Windows 10 version 1903 and later
-AddFilter = usbip2_filter,,usbip2_filter_Filter_Inst
+AddFilter = usbipne_filter,,usbipne_filter_Filter_Inst
   
-[usbip2_filter_Filter_Inst]
+[usbipne_filter_Filter_Inst]
 ; HKLM\SYSTEM\CurrentControlSet\Enum\USB\ROOT_HUB30\<DEVICE_ID>\Filters\*Upper
 FilterPosition = Upper
 
 [Generic_Inst.NT$ARCH$.Services]
-AddService = usbip2_filter,,usbip2_filter_Service_Inst
+AddService = usbipne_filter,,usbipne_filter_Service_Inst
 
-[usbip2_filter_Service_Inst]
+[usbipne_filter_Service_Inst]
 DisplayName    = %DisplayName%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START
 ErrorControl   = 2               ; SERVICE_ERROR_SEVERE
-ServiceBinary  = %13%\usbip2_filter.sys
-AddReg         = usbip2_filter_Service_AddReg
+ServiceBinary  = %13%\usbipne_filter.sys
+AddReg         = usbipne_filter_Service_AddReg
 
-[usbip2_filter_Service_AddReg]
+[usbipne_filter_Service_AddReg]
 ; Inflight Trace Recorder (IFR) parameter "VerboseOn".
 ; The default setting of zero causes the IFR to log errors, warnings, and informational events
 HKR,Parameters,VerboseOn,0x00010001,1 ; show TRACE_LEVEL_VERBOSE
 
 [Strings]
-Manufacturer="USBIP-WIN2"
-DisplayName="USBip Upper Filter for USBHUB3" ; for device and service
+Manufacturer="USBIPNE-WIN"
+DisplayName="USBipNe Upper Filter for USBHUB3" ; for device and service

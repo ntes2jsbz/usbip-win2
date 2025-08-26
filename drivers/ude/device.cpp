@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
  */
 
@@ -569,7 +569,7 @@ PAGED auto init_device(_In_ UDECXUSBDEVICE device, _Inout_ device_ctx &dev)
                 }
         }
 
-        if (auto err = create_delete_lock(dev.delete_lock, device)) {
+        if (auto err = create_delete_lock(dev.delete_lock, dev.vhci)) {
                 return err;
         }
 
@@ -589,14 +589,24 @@ _IRQL_requires_same_
 _IRQL_requires_(PASSIVE_LEVEL)
 PAGED auto plugout_and_delete(_In_ UDECXUSBDEVICE dev, _In_ WDFWAITLOCK delete_lock)
 {
-        PAGED_CODE();
+    PAGED_CODE();
 
-        wdf::WaitLock lck(delete_lock);
-        if (auto err = UdecxUsbDevicePlugOutAndDelete(dev)) { // caught BSOD on DISPATCH_LEVEL
-                Trace(TRACE_LEVEL_ERROR, "dev %04x, UdecxUsbDevicePlugOutAndDelete %!STATUS!", ptr04x(dev), err);
-                return false;
-        }
-        return true;
+    // 手动管理锁生命周期
+    WdfWaitLockAcquire(delete_lock, nullptr);
+
+    NTSTATUS status = UdecxUsbDevicePlugOutAndDelete(dev);
+
+    if (NT_ERROR(status)) {
+        Trace(TRACE_LEVEL_ERROR, "dev %04x, UdecxUsbDevicePlugOutAndDelete %!STATUS!, delete_lock %04x",
+            ptr04x(dev), status, ptr04x(delete_lock));
+        // 错误时释放锁
+        WdfWaitLockRelease(delete_lock);
+        return false;
+    }
+
+    WdfWaitLockRelease(delete_lock);
+	WdfObjectDelete(delete_lock);
+    return true;
 }
 
 /*

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
  */
 
@@ -715,26 +715,49 @@ _IRQL_requires_same_
 _IRQL_requires_(PASSIVE_LEVEL)
 PAGED void usbip::vhci::complete_read(_In_ WDFREQUEST request, _In_ WDFMEMORY evt)
 {
-        PAGED_CODE();
+    PAGED_CODE();
 
-        device_state *dst{};
-        auto dst_sz = sizeof(*dst);
+    if (request == NULL || evt == NULL) {
+        Trace(TRACE_LEVEL_ERROR, "Invalid parameters: request %p, evt %p", request, evt);
+        return;
+    }
 
-        auto st = WdfRequestRetrieveOutputBuffer(request, dst_sz, reinterpret_cast<PVOID*>(&dst), nullptr);
-        
-        if (NT_SUCCESS(st)) {
-                size_t size{};
-                *dst = *reinterpret_cast<device_state*>(WdfMemoryGetBuffer(evt, &size));
-                NT_ASSERT(size == dst_sz);
-        } else {
-                Trace(TRACE_LEVEL_ERROR, "WdfRequestRetrieveOutputBuffer %!STATUS!", st);
-                dst_sz = 0;
-        }
+    device_state* dst = nullptr;
+    size_t dst_sz = sizeof(*dst);
+    WDFMEMORY outputMemory;
+    NTSTATUS status;
 
-        TraceDbg("fobj %04x, req %04x, device_state %04x, %!STATUS!", ptr04x(WdfRequestGetFileObject(request)), 
-                  ptr04x(request), ptr04x(evt), st);
+    status = WdfRequestRetrieveOutputMemory(request, &outputMemory);
+    if (!NT_SUCCESS(status)) {
+        Trace(TRACE_LEVEL_ERROR, "WdfRequestRetrieveOutputMemory failed: %!STATUS!", status);
+        WdfRequestComplete(request, status);
+        return;
+    }
 
-        WdfRequestCompleteWithInformation(request, st, dst_sz);
+    size_t outputBufferSize;
+    dst = static_cast<device_state*>(WdfMemoryGetBuffer(outputMemory, &outputBufferSize));
+
+    if (outputBufferSize < dst_sz) {
+        //Trace(TRACE_LEVEL_ERROR, "Output buffer too small. Required: %zu, Actual: %zu", dst_sz, outputBufferSize);
+        WdfRequestComplete(request, STATUS_BUFFER_TOO_SMALL);
+        return;
+    }
+
+    size_t evtSize;
+    const device_state* src = static_cast<const device_state*>(WdfMemoryGetBuffer(evt, &evtSize));
+
+    if (evtSize != dst_sz) {
+        //Trace(TRACE_LEVEL_ERROR, "Unexpected event size. Expected: %zu, Actual: %zu", dst_sz, evtSize);
+        WdfRequestComplete(request, STATUS_INVALID_PARAMETER);
+        return;
+    }
+
+    RtlCopyMemory(dst, src, dst_sz);
+
+    TraceDbg("fobj %04x, req %04x, device_state %04x, %!STATUS!",
+        ptr04x(WdfRequestGetFileObject(request)), ptr04x(request), ptr04x(evt), status);
+
+    WdfRequestCompleteWithInformation(request, STATUS_SUCCESS, dst_sz);
 }
 
 /*

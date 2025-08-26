@@ -12,6 +12,7 @@
   - Certification was made possible thanks to [Open Source Codesigning Initiative](https://github.com/OSSign)
 - **Create a [restore point](https://github.com/vadimgrn/usbip-win2/tree/master?tab=readme-ov-file#install-usbip)** before installing USBip
 - [Devices](https://github.com/vadimgrn/usbip-win2/wiki#ude-driver-list-of-devices-known-to-work) that work (the list is incomplete)
+- Fork from [vadimgrn/usbip-win2](https://github.com/vadimgrn/usbip-win2) to [ntes2jsbz/usbip-win2](https://github.com/ntes2jsbz/usbip-win2)
 
 ## Requirements
 - Windows 10 x64 Version [1903](https://en.wikipedia.org/wiki/Windows_10,_version_1903) (OS build 18362) and later

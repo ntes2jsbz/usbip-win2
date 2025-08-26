@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
  */
 
@@ -39,6 +39,8 @@ struct workitem_ctx
 
         device_ctx_ext *ext;
         ADDRINFOEXW *addrinfo; // list head
+
+        WDFTIMER delay_timer;      // 延迟删除定时器
 };
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(workitem_ctx, get_workitem_ctx)
 
@@ -431,36 +433,45 @@ PAGED void NTAPI complete(_In_ WDFWORKITEM wi)
         if (st != STATUS_PENDING) {
                 TraceDbg("req %04x, %!STATUS!", ptr04x(request), st);
                 WdfRequestComplete(request, st);
-                WdfObjectDelete(wi); // do not use ctx.request more, see workitem_cleanup
+
+                TraceDbg("Scheduled delayed deletion for workitem %04x", ptr04x(wi));
+                // 启动延迟删除定时器（延迟 1ms）
+                WdfTimerStart(ctx.delay_timer, WDF_REL_TIMEOUT_IN_MS(1));
         }
 }
 
 /*
  * ctx.request could be already completed.
  */
+ // cleanup 回调函数
 _Function_class_(EVT_WDF_OBJECT_CONTEXT_CLEANUP)
 _IRQL_requires_same_
 _IRQL_requires_(PASSIVE_LEVEL)
 PAGED void workitem_cleanup(_In_ WDFOBJECT obj)
 {
-        PAGED_CODE();
-        
-        auto wi = static_cast<WDFWORKITEM>(obj); // WdfWorkItemGetParentObject(wi) returns NULL
-        auto &ctx = *get_workitem_ctx(wi); 
+    PAGED_CODE();
 
-        TraceDbg("request %04x, addrinfo %04x, device_ctx_ext %04x", 
-                  ptr04x(ctx.request), ptr04x(ctx.addrinfo), ptr04x(ctx.ext));
+    auto wi = static_cast<WDFWORKITEM>(obj);
+    auto& ctx = *get_workitem_ctx(wi);
 
-        wsk::free(ctx.addrinfo);
-        ctx.addrinfo = nullptr;
+    TraceDbg("Cleanup workitem %04x, request %04x, addrinfo %04x, device_ctx_ext %04x",
+        ptr04x(wi), ptr04x(ctx.request), ptr04x(ctx.addrinfo), ptr04x(ctx.ext));
 
-        if (auto &ext = ctx.ext) {
-                close_socket(ext->sock);
-                device_state_changed(ctx.vhci, *ext, 0, vhci::state::disconnected);
+    // 停止定时器（如果还在运行）
+    if (ctx.delay_timer) {
+        WdfTimerStop(ctx.delay_timer, TRUE); // 等待定时器停止
+    }
 
-                free(ext);
-                ext = nullptr;
-        }
+    // 清理资源
+    wsk::free(ctx.addrinfo);
+    ctx.addrinfo = nullptr;
+
+    if (auto& ext = ctx.ext) {
+        close_socket(ext->sock);
+        device_state_changed(ctx.vhci, *ext, 0, vhci::state::disconnected);
+        free(ext);
+        ext = nullptr;
+    }
 }
 
 _IRQL_requires_same_
@@ -504,6 +515,23 @@ PAGED void getaddrinfo(_In_ WDFREQUEST request, _In_ WDFWORKITEM wi, _Inout_ wor
         TraceDbg("%!STATUS!", st);
 }
 
+// 延迟删除定时器回调
+_Function_class_(EVT_WDF_TIMER)
+_IRQL_requires_same_
+_IRQL_requires_max_(DISPATCH_LEVEL)
+void delayed_delete_timer(_In_ WDFTIMER timer)
+{
+    auto wi = static_cast<WDFWORKITEM>(WdfTimerGetParentObject(timer));
+
+    TraceDbg("Delayed deleting workitem %04x", ptr04x(wi));
+
+    // 停止定时器
+    WdfTimerStop(timer, FALSE);
+
+    // 现在安全删除 workitem（定时器会随之删除）
+    WdfObjectDelete(wi);
+}
+
 _IRQL_requires_same_
 _IRQL_requires_(PASSIVE_LEVEL)
 PAGED auto plugin_hardware( _In_ WDFREQUEST request, _In_ const vhci::ioctl::plugin_hardware &r)
@@ -522,6 +550,20 @@ PAGED auto plugin_hardware( _In_ WDFREQUEST request, _In_ const vhci::ioctl::plu
 
         ctx.vhci = vhci;
         ctx.request = request;
+
+        // 创建延迟删除定时器
+        WDF_TIMER_CONFIG timer_config;
+        WDF_TIMER_CONFIG_INIT(&timer_config, delayed_delete_timer);
+        timer_config.AutomaticSerialization = FALSE; // 避免序列化问题
+
+        WDF_OBJECT_ATTRIBUTES timer_attr;
+        WDF_OBJECT_ATTRIBUTES_INIT(&timer_attr);
+        timer_attr.ParentObject = wi; // 设置 workitem 为父对象
+
+        if (auto err = WdfTimerCreate(&timer_config, &timer_attr, &ctx.delay_timer)) {
+            WdfObjectDelete(wi);
+            return err;
+        }
 
         if (auto err = create_device_ctx_ext(ctx.ext, r)) {
                 WdfObjectDelete(wi);
@@ -767,7 +809,7 @@ PAGED void device_control(
 }
 
 /*
- * There is an internal lock on the registry, but that�s just to ensure that registry operations are atomic; 
+ * There is an internal lock on the registry, but that抯 just to ensure that registry operations are atomic; 
  * that is, that if one thread writes a value to the registry and another thread reads that same value 
  * from the registry, then the value that comes back is either the value before the write took place 
  * or the value after the write took place, but not some sort of mixture of the two.

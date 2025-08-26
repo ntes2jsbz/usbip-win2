@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2023-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
  */
 
@@ -179,8 +179,8 @@ void post_process_urb(_In_ filter_ext &fltr, _Inout_ libdrv::RemoveLockGuard &lc
 }
 
 /*
- * IRP -> usbip2_filter.sys -> ucx01000.sys -> udecx.sys -> usbip2_ude.sys
- * IRP can be completed by ucx01000 or udecx, in such case usbip2_ude will not receive it.
+ * IRP -> usbipne_filter.sys -> ucx01000.sys -> udecx.sys -> usbipne_ude.sys
+ * IRP can be completed by ucx01000 or udecx, in such case usbipne_ude will not receive it.
  * To detect such issues, all IRPs are inspected upon completion.
  */
 _IRQL_requires_same_

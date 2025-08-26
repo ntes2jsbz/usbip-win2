@@ -58,7 +58,7 @@
     <ClCompile Include="endpoint_list.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="usbip2_ude.inf" />
+    <Inf Include="usbipne_ude.inf" />
   </ItemGroup>
   <ItemGroup>
     <None Include="custom_wpp.ini" />

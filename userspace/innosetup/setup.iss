@@ -1,4 +1,4 @@
-; Copyright (C) 2022 - 2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
+﻿; Copyright (C) 2022 - 2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
 
 #if Ver < EncodeVer(6,4,2,0)
         #error This script requires Inno Setup 6.4.2 or later
@@ -47,10 +47,10 @@
 
 #define AppGUID "{199505b0-b93d-4521-a8c7-897818e0205a}"
 
-#define FilterDriver "usbip2_filter"
-#define UdeDriver "usbip2_ude"
+#define FilterDriver "usbipne_filter"
+#define UdeDriver "usbipne_ude"
 
-#define CLIENT_HWID "ROOT\USBIP_WIN2\UDE"
+#define CLIENT_HWID "ROOT\USBIPNE_WIN\UDE"
 
 #define TimestampServer "http://timestamp.digicert.com"
 

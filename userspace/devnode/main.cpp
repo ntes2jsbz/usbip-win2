@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
  */
 
@@ -156,7 +156,7 @@ inline auto as_wstring_view(_In_ std::vector<BYTE> &v) noexcept
 /*
  * @param infpath must be an absolute path
  * @see devcon, cmd/cmd_remove
- * @see devcon hwids ROOT\USBIP_WIN2\*
+ * @see devcon hwids ROOT\USBIPNE_WIN\*
  */
 auto install_devnode_and_driver(_In_ const devnode_install_args &r)
 {
@@ -199,7 +199,7 @@ auto install_devnode_and_driver(_In_ const devnode_install_args &r)
         }
         bool reboot = params.Flags & (DI_NEEDREBOOT | DI_NEEDRESTART);
 
-        // the same as "pnputil /add-driver usbip2_ude.inf /install"
+        // the same as "pnputil /add-driver usbipne_ude.inf /install"
 
         BOOL RebootRequired{};
         bool ok = UpdateDriverForPlugAndPlayDevices(nullptr, r.hwid.c_str(), r.infpath.c_str(), INSTALLFLAG_FORCE, &RebootRequired);
@@ -252,7 +252,7 @@ auto uninstall_device(
  * DIGCF_ALLCLASSES is used to find devices without a driver (Class = Unknown or Class = NoDriver).
  *
  * @see devcon, cmd/cmd_remove
- * @see devcon hwids ROOT\USBIP_WIN2\*
+ * @see devcon hwids ROOT\USBIPNE_WIN\*
  */
 auto remove_devnode(_In_ devnode_remove_args &r)
 {

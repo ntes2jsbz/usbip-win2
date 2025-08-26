@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
  */
 
@@ -89,7 +89,7 @@ PAGED bool driver_name_equal(
 }
 
 /*
- * Do not check that HardwareID is "USB\ROOT_HUB30" because above usbip2_ude can be nothing else.
+ * Do not check that HardwareID is "USB\ROOT_HUB30" because above usbipne_ude can be nothing else.
  * 
  * for (auto cur = IoGetAttachedDeviceReference(pdo); cur; ) { // @see IoGetDeviceAttachmentBaseRef
  * 	auto lower = IoGetLowerDeviceObject(cur);

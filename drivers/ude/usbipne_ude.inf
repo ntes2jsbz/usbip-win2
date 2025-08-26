@@ -1,6 +1,6 @@
 ; Copyright (c) 2022-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>
 ;
-; usbip2_ude.inf
+; usbipne_ude.inf
 ;
 
 [Version]
@@ -8,7 +8,7 @@ Signature="$WINDOWS NT$"
 Class=USB
 ClassGuid={36FC9E60-C465-11CF-8056-444553540000} ; Devguid.h, GUID_DEVCLASS_USB, USB host controllers and USB hubs
 Provider=%Manufacturer%
-CatalogFile=usbip2_ude.cat ; do not modify, used by setup.iss for searching drivers for uninstallation
+CatalogFile=usbipne_ude.cat ; do not modify, used by setup.iss for searching drivers for uninstallation
 PnpLockDown=1
 
 [DestinationDirs]
@@ -18,7 +18,7 @@ DefaultDestDir = 13 ; Driver package isolation
 1 = "USBip UDE Installation Disk"
 
 [SourceDisksFiles]
-usbip2_ude.sys = 1
+usbipne_ude.sys = 1
 
 [Manufacturer]
 ; Windows 10, version 1809 and later
@@ -26,10 +26,10 @@ usbip2_ude.sys = 1
 %Manufacturer%=Standard,NT$ARCH$.10.0...17763
 
 [Standard.NT$ARCH$.10.0...17763]
-%DisplayName%=ude_Device, ROOT\USBIP_WIN2\UDE
+%DisplayName%=ude_Device, ROOT\USBIPNE_WIN\UDE
 
 [ude_Device.NT]
-CopyFiles=@usbip2_ude.sys
+CopyFiles=@usbipne_ude.sys
 
 [ude_Device.NT.HW]
 Include=machine.inf
@@ -37,14 +37,14 @@ Needs=PciD3ColdSupported.HW
 
 [ude_Device.NT.Services]
 ; Flags: 0x00000002 (SPSVCINST_ASSOCSERVICE)
-AddService = usbip2_ude,2,ude_Device_Service_Inst
+AddService = usbipne_ude,2,ude_Device_Service_Inst
 
 [ude_Device_Service_Inst]
 DisplayName    = %DisplayName%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %13%\usbip2_ude.sys ; Driver package isolation
+ServiceBinary  = %13%\usbipne_ude.sys ; Driver package isolation
 Dependencies   = ucx01000, udecx, tcpip
 AddReg         = ude_Device_Service_AddReg
 
@@ -69,6 +69,6 @@ HKR, Parameters\Wdf, VerboseOn, %REG_DWORD%, 1
 HKR, Parameters\Wdf, VerifierOn, %REG_DWORD%, 1
 
 [Strings]
-Manufacturer = "USBIP-WIN2"
-DisplayName = "USBip 3.X Emulated Host Controller" ; for device and service
+Manufacturer = "USBIPNE-WIN"
+DisplayName = "USBipNe 3.X Emulated Host Controller" ; for device and service
 REG_DWORD = 0x00010001 ; FLG_ADDREG_TYPE_DWORD
