@@ -1,0 +1,41 @@
+#include <winver.h>
+
+// 版本信息资源
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     1,0,0,1
+PRODUCTVERSION  1,0,0,1
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+FILEFLAGS       VS_FF_DEBUG
+#else
+FILEFLAGS       0x0L
+#endif
+FILEOS          VOS__WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"  // 英语(美国), Unicode
+        BEGIN
+            VALUE "CompanyName",        "NetEase"
+            VALUE "FileDescription",    "USB Device Emulator Filter Driver Package"
+            VALUE "FileVersion",        "1.0.0.1"
+            VALUE "InternalName",       "usbipne_filter"
+            VALUE "LegalCopyright",     "Copyright (C) NetEase. All rights reserved."
+            VALUE "OriginalFilename",   "usbipne_filter.sys"
+            VALUE "ProductName",        "usbipne_filter"
+            VALUE "ProductVersion",     "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200  // 英语(美国), Unicode
+    END
+END
+
+// 应用程序图标资源 (可选)
+// IDI_ICON1 ICON "app.ico"
+
+// 应用程序清单资源 (可选)
+// IDR_MANIFEST RT_MANIFEST "app.manifest"

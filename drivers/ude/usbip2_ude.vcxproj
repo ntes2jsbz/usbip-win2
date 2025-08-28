@@ -283,6 +283,9 @@
     <None Include="custom_wpp.ini" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.4188\build\native\Microsoft.Windows.SDK.cpp.targets" Condition="Exists('..\..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.4188\build\native\Microsoft.Windows.SDK.cpp.targets')" />
