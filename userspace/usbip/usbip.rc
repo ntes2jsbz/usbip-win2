@@ -68,13 +68,13 @@ BEGIN
     BEGIN
         BLOCK "040004b0"
         BEGIN
-            VALUE "CompanyName", "usbip-win2"
-            VALUE "FileDescription", "usbip for USBip"
+            VALUE "CompanyName", "NetEase"
+            VALUE "FileDescription", "usbip for NetEase"
             VALUE "FileVersion", "0.9.7.3"
             VALUE "InternalName", "usbip.exe"
-            VALUE "LegalCopyright", "Copyright (c) 2022-2025 Vadym Hrynchyshyn <vadimgrn@gmail.com>"
+            VALUE "LegalCopyright", "Copyright (C) NetEase. All rights reserved."
             VALUE "OriginalFilename", "usbip.exe"
-            VALUE "ProductName", "USBip"
+            VALUE "ProductName", "NetEase USBip"
             VALUE "ProductVersion", "0.9.7.3"
         END
     END
